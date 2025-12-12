@@ -1,6 +1,6 @@
 ﻿# --- ESTAGIO 1: BUILDER (Compilacao) ---
-# Usando 'nightly' pois algumas dependencias ja exigem edition2024
-FROM rust:nightly-slim-bookworm AS builder
+# Usando 'rust:nightly' (Imagem completa) para garantir que a tag existe e suporta edition2024
+FROM rust:nightly AS builder
 
 # Instalar dependencias de sistema necessarias para compilar (OpenSSL, pkg-config)
 RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
