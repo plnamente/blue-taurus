@@ -1,5 +1,6 @@
 ﻿# --- ESTAGIO 1: BUILDER (Compilacao) ---
-FROM rust:1.81-slim-bookworm as builder
+# Usando Rust 1.83 para compatibilidade com crates recentes (base64ct/edition2024)
+FROM rust:1.83-slim-bookworm as builder
 
 # Instalar dependencias de sistema necessarias para compilar (OpenSSL, pkg-config)
 RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
