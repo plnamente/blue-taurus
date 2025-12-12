@@ -1,0 +1,9 @@
+﻿target/
+.git/
+.env
+*.md
+docker/
+scripts/
+fix_*.ps1
+setup_*.ps1
+testes/

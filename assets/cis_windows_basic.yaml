@@ -1,0 +1,24 @@
+id: "cis_win11_basic"
+name: "CIS Microsoft Windows 11 Benchmark (Basic)"
+description: "Verificacoes essenciais de higiene cibernetica."
+rules:
+  - id: 1001
+    title: "Garantir que o Firewall do Windows esta Ativo (Domain)"
+    description: "O Firewall protege contra acesso nao autorizado de rede."
+    command: "Get-NetFirewallProfile -Profile Domain | Select-Object -ExpandProperty Enabled"
+    expect: "True"
+    remediation: "Set-NetFirewallProfile -Profile Domain -Enabled True"
+
+  - id: 1002
+    title: "Garantir que o Windows Update Service esta rodando"
+    description: "Atualizacoes sao criticas para seguranca."
+    command: "Get-Service wuauserv | Select-Object -ExpandProperty Status"
+    expect: "Running"
+    remediation: "Start-Service wuauserv"
+
+  - id: 1003
+    title: "Verificar se o usuario 'Guest' esta desativado"
+    description: "Contas de convidado sao vetores de ataque comuns."
+    command: "Get-LocalUser -Name Guest | Select-Object -ExpandProperty Enabled"
+    expect: "False"
+    remediation: "Disable-LocalUser -Name Guest"
