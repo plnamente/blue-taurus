@@ -1,9 +1,14 @@
 ﻿# --- ESTAGIO 1: BUILDER (Compilacao) ---
-# Usando 'rust:nightly' (Imagem completa) para garantir que a tag existe e suporta edition2024
-FROM rust:nightly AS builder
+# Comecamos com uma imagem que SABEMOS que existe (1.83-slim)
+FROM rust:1.83-slim-bookworm AS builder
 
-# Instalar dependencias de sistema necessarias para compilar (OpenSSL, pkg-config)
+# Instalar dependencias de sistema
 RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
+
+# INSTALACAO MANUAL DO NIGHTLY
+# Como as tags 'rust:nightly' estao falhando no pull, instalamos manualmente.
+# Isso garante suporte a 'edition2024' exigido pelas dependencias.
+RUN rustup toolchain install nightly && rustup default nightly
 
 # Criar diretorio de trabalho
 WORKDIR /app
