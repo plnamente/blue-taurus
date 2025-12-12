@@ -1,6 +1,6 @@
 ﻿# --- ESTAGIO 1: BUILDER (Compilacao) ---
-# Usando 'latest' para garantir o compilador mais recente disponivel
-FROM rust:latest AS builder
+# Usando 'nightly' pois algumas dependencias ja exigem edition2024
+FROM rust:nightly-slim-bookworm AS builder
 
 # Instalar dependencias de sistema necessarias para compilar (OpenSSL, pkg-config)
 RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
