@@ -5,6 +5,7 @@
 #          compilacao no Docker sem acesso ao banco de dados (Bypass compile-time check).
 # Fix 2.0: Atualiza URL do Agente para o servidor de Producao (Coolify).
 # Fix 2.1: Incorpora UI Sci-Fi completa no script (para garantir update visual).
+# Fix 2.2: Atualiza UI para o novo layout "Security Operations Center".
 # ==============================================================================
 
 $ProjectName = "blue-taurus"
@@ -438,235 +439,363 @@ $htmlContent = @'
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blue-Taurus | Command Bridge</title>
+    <title>Blue-Taurus | Security Operations Center</title>
     
+    <!-- Bibliotecas Externas para Prototipagem Rápida -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <!-- Fonte Tática: JetBrains Mono -->
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Fontes Técnicas -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        
+        :root {
+            --bg-deep: #0B1120;
+            --bg-surface: #151E32;
+            --accent-cyan: #06B6D4;
+            --accent-danger: #EF4444;
+            --accent-success: #10B981;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-deep);
+            color: #E2E8F0;
+        }
+        
+        .mono-font { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Glassmorphism Sutil para Paineis */
+        .glass-panel {
+            background: rgba(21, 30, 50, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Scrollbar estilo "Hacker" */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0B1120; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Animações e Transições */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(6,182,212,0.15) 0%, rgba(0,0,0,0) 100%);
+            border-left: 3px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        /* SQL Universal Syntax Highlighting (Postgres & Elastic Compatible) */
+        .sql-keyword { color: #F472B6; font-weight: bold; } /* Pink: SELECT, FROM, WHERE */
+        .sql-function { color: #60A5FA; } /* Blue: COUNT, NOW, AVG */
+        .sql-string { color: #A78BFA; } /* Purple: 'tables', 'values' */
+        .sql-number { color: #FCD34D; } /* Yellow */
+        .sql-comment { color: #64748B; font-style: italic; } /* Slate */
+        .sql-operator { color: #E2E8F0; } /* White/Gray: =, >, < */
+        
+        /* Status Badges */
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-fail { background: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-online { color: #34D399; font-weight: bold; text-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
+        .badge-offline { color: #64748b; font-weight: bold; }
+
+        /* --- ANIMAÇÃO CYBER GLITCH (LOGO) --- */
+        .cyber-glitch {
+            position: relative;
+            display: inline-block;
+        }
+
+        .cyber-glitch::before,
+        .cyber-glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111827; /* Mesma cor do background da sidebar */
+        }
+
+        .cyber-glitch::before {
+            left: 2px;
+            text-shadow: -1px 0 #EF4444; /* Vermelho falha */
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        .cyber-glitch::after {
+            left: -2px;
+            text-shadow: -1px 0 #06B6D4; /* Ciano falha */
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(14px, 9999px, 127px, 0); }
+            20% { clip: rect(66px, 9999px, 88px, 0); }
+            40% { clip: rect(130px, 9999px, 136px, 0); }
+            60% { clip: rect(29px, 9999px, 86px, 0); }
+            80% { clip: rect(98px, 9999px, 126px, 0); }
+            100% { clip: rect(113px, 9999px, 49px, 0); }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(122px, 9999px, 63px, 0); }
+            20% { clip: rect(96px, 9999px, 137px, 0); }
+            40% { clip: rect(74px, 9999px, 59px, 0); }
+            60% { clip: rect(27px, 9999px, 20px, 0); }
+            80% { clip: rect(54px, 9999px, 32px, 0); }
+            100% { clip: rect(15px, 9999px, 78px, 0); }
+        }
+
+        /* Modal Transitions */
+        .modal { transition: opacity 0.25s ease; }
+        body.modal-active { overflow: hidden; }
+        
+        .tab-btn.active { border-bottom: 2px solid var(--accent-cyan); color: var(--accent-cyan); }
+    </style>
 
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
-                fontFamily: { sans: ['"JetBrains Mono"', 'monospace'] },
                 extend: {
                     colors: {
-                        void: '#0b1120',      // Void Black
-                        nebula: '#3b82f6',    // Nebula Blue
-                        starlight: '#f8fafc', // Starlight White
-                        alert: '#ef4444',     // Alert Red
-                        success: '#10b981',   // Success Emerald
-                        glass: 'rgba(30, 41, 59, 0.6)'
-                    },
-                    boxShadow: {
-                        'neon': '0 0 10px rgba(59, 130, 246, 0.5)',
-                        'neon-red': '0 0 10px rgba(239, 68, 68, 0.5)',
+                        navy: '#0B1120',
+                        surface: '#151E32',
+                        primary: '#3B82F6',
+                        cyan: '#06B6D4'
                     }
                 }
             }
         }
     </script>
-    <style>
-        body { background-color: #0b1120; color: #f8fafc; background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b1120 60%); }
-        
-        /* Glassmorphism Cards */
-        .card { 
-            background: rgba(30, 41, 59, 0.4); 
-            border: 1px solid rgba(59, 130, 246, 0.2); 
-            backdrop-filter: blur(12px);
-            border-radius: 0.5rem; 
-            transition: all 0.3s ease;
-        }
-        .card:hover { border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 0 15px rgba(59, 130, 246, 0.1); }
-
-        /* Scrollbar Cyberpunk */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #020617; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
-        
-        .nav-item.active { 
-            background: linear-gradient(90deg, rgba(59,130,246,0.15) 0%, transparent 100%); 
-            color: #60a5fa; 
-            border-left: 2px solid #60a5fa; 
-        }
-    </style>
 </head>
-<body class="flex h-screen overflow-hidden selection:bg-nebula selection:text-white">
+<body class="h-screen flex overflow-hidden selection:bg-cyan-500/30 selection:text-cyan-200">
 
-    <!-- SIDEBAR -->
-    <aside class="w-64 border-r border-slate-800 bg-slate-900/50 backdrop-blur-md flex flex-col z-30">
-        <div class="h-20 flex items-center px-6 border-b border-slate-800">
-            <i class="ph-fill ph-shield-star text-nebula text-3xl mr-3 animate-pulse"></i>
-            <div>
-                <h1 class="font-bold text-lg tracking-widest text-white">BLUE<span class="text-nebula">TAURUS</span></h1>
-                <p class="text-[10px] text-slate-500 tracking-widest uppercase">Defense System v1.5</p>
+    <!-- ================= SIDEBAR (Navegação Principal) ================= -->
+    <aside class="w-72 bg-[#111827] border-r border-slate-800 flex flex-col justify-between z-20 shadow-xl">
+        <div>
+            <!-- Header do Projeto -->
+            <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-[#0f172a]">
+                <div class="w-8 h-8 bg-cyan-600 rounded flex items-center justify-center mr-3 shadow-[0_0_10px_rgba(8,145,178,0.5)]">
+                    <i data-lucide="shield-check" class="text-white w-5 h-5"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wider text-white">
+                        BLUE<span class="text-cyan-500 cyber-glitch" data-text="TAURUS">TAURUS</span>
+                    </h1>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest">Cyber Defense Platform</p>
+                </div>
             </div>
+
+            <!-- Links de Navegação -->
+            <nav class="mt-6 space-y-1 px-2">
+                <a href="#" onclick="navigate('dashboard', this)" id="nav-dashboard" class="nav-item active flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all text-slate-300 hover:text-white hover:bg-slate-800/50 group">
+                    <i data-lucide="layout-grid" class="w-5 h-5 mr-3 group-hover:text-cyan-400 transition-colors"></i>
+                    Dashboard Tático
+                </a>
+                
+                <div class="pt-4 pb-2 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Operações</div>
+                
+                 <a href="#" onclick="navigate('inventory', this)" id="nav-inventory" class="nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all text-slate-300 hover:text-white hover:bg-slate-800/50 group">
+                    <i data-lucide="server" class="w-5 h-5 mr-3 group-hover:text-cyan-400 transition-colors"></i>
+                    Inventário de Ativos (EDR)
+                </a>
+                
+                <a href="#" onclick="navigate('analytics', this)" id="nav-analytics" class="nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all text-slate-300 hover:text-white hover:bg-slate-800/50 group">
+                    <i data-lucide="terminal" class="w-5 h-5 mr-3 group-hover:text-cyan-400 transition-colors"></i>
+                    Data Analytics (SQL)
+                </a>
+                <a href="#" onclick="navigate('threat-hunting', this)" id="nav-threat-hunting" class="nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all text-slate-300 hover:text-white hover:bg-slate-800/50 group">
+                    <i data-lucide="crosshair" class="w-5 h-5 mr-3 group-hover:text-cyan-400 transition-colors"></i>
+                    Threat Hunting
+                </a>
+
+                <div class="pt-4 pb-2 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Governança (GRC)</div>
+
+                <a href="#" onclick="navigate('compliance', this)" id="nav-compliance" class="nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all text-slate-300 hover:text-white hover:bg-slate-800/50 group">
+                    <i data-lucide="list-todo" class="w-5 h-5 mr-3 group-hover:text-emerald-400 transition-colors"></i>
+                    CIS Controls v8
+                </a>
+                
+                <div class="pt-4 pb-2 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sistema</div>
+                
+                <a href="#" onclick="navigate('config', this)" id="nav-config" class="nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md transition-all text-slate-300 hover:text-white hover:bg-slate-800/50 group">
+                    <i data-lucide="settings-2" class="w-5 h-5 mr-3 group-hover:text-cyan-400 transition-colors"></i>
+                    Configurações
+                </a>
+            </nav>
         </div>
 
-        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-            <p class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-4">Operations</p>
-            
-            <a href="#" onclick="navigate('dashboard')" id="nav-dashboard" class="nav-item active flex items-center gap-3 px-3 py-3 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-all">
-                <i class="ph-bold ph-squares-four text-lg"></i> Command Bridge
-            </a>
-            
-            <a href="#" onclick="navigate('inventory')" id="nav-inventory" class="nav-item flex items-center gap-3 px-3 py-3 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-all">
-                <i class="ph-bold ph-hard-drives text-lg"></i> Sentinel Nodes
-            </a>
-
-            <p class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-8">Defense Grid</p>
-
-            <a href="#" onclick="navigate('compliance')" id="nav-compliance" class="nav-item flex items-center gap-3 px-3 py-3 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-all">
-                <i class="ph-bold ph-shield-check text-lg"></i> Shield Integrity
-            </a>
-            
-            <a href="#" onclick="Swal.fire('Modulo Off-line', 'Radar de longo alcance inativo.', 'warning')" class="nav-item flex items-center gap-3 px-3 py-3 text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-all">
-                <i class="ph-bold ph-skull text-lg"></i> Hull Breaches
-            </a>
-        </nav>
-
-        <div class="p-4 border-t border-slate-800 bg-black/20">
+        <!-- Footer do Usuário -->
+        <div class="p-4 border-t border-slate-800 bg-[#0f172a]">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded border border-nebula bg-nebula/20 flex items-center justify-center text-xs font-bold text-nebula shadow-neon">CMDR</div>
+                <div class="relative">
+                    <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center border border-slate-600">
+                        <span class="font-bold text-cyan-400">KO</span>
+                    </div>
+                    <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#0f172a]"></div>
+                </div>
                 <div>
-                    <p class="text-xs font-bold text-white uppercase">Commander</p>
-                    <p class="text-[10px] text-emerald-500">SECURE LINK</p>
+                    <p class="text-sm text-white font-medium">Kortana AI</p>
+                    <p class="text-xs text-slate-400">Senior SecOps Architect</p>
                 </div>
             </div>
         </div>
     </aside>
 
-    <!-- MAIN AREA -->
-    <main class="flex-1 flex flex-col overflow-hidden relative">
+    <!-- ================= MAIN CONTENT ================= -->
+    <main class="flex-1 flex flex-col relative bg-[#0B1120]">
         
-        <header class="h-20 flex items-center justify-between px-8 border-b border-slate-800 bg-slate-900/30 backdrop-blur-md">
-            <div>
-                <h2 id="page-title" class="text-xl font-bold text-white tracking-wide">COMMAND BRIDGE</h2>
-                <p class="text-[10px] text-slate-500 uppercase tracking-widest">Sector Alpha // Monitoring</p>
+        <!-- Topbar Global -->
+        <header class="h-16 border-b border-slate-800 bg-[#0B1120]/80 backdrop-blur-md flex items-center justify-between px-8 z-10">
+            <!-- Barra de Busca Global -->
+            <div class="flex items-center w-96 relative">
+                <i data-lucide="search" class="absolute left-3 w-4 h-4 text-slate-500"></i>
+                <input type="text" placeholder="Buscar IPs, CVEs, Users ou Assets..." class="w-full bg-[#151E32] border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all placeholder:text-slate-600 text-slate-200">
+                <div class="absolute right-2 px-2 py-0.5 bg-slate-800 rounded text-[10px] text-slate-400 font-mono border border-slate-700">CTRL+K</div>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="px-4 py-1.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-neon">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Systems Nominal
+
+            <!-- Status do Sistema -->
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 border border-red-500/20 rounded-full">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                    <span class="text-xs font-bold text-red-400 tracking-wider">DEFCON 4</span>
                 </div>
+                
+                <div class="h-6 w-px bg-slate-700"></div>
+                
+                <button class="text-slate-400 hover:text-white transition-colors relative">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-cyan-500 rounded-full"></span>
+                </button>
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-8 scroll-smooth" id="content-area">
+        <!-- Container de Conteúdo -->
+        <div class="flex-1 overflow-y-auto p-8 relative scroll-smooth" id="content-area">
             
-            <!-- VIEW: DASHBOARD -->
-            <div id="view-dashboard" class="space-y-6 fade-in">
-                <!-- KPIs -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="card p-6 border-t-2 border-nebula">
-                        <p class="text-slate-400 text-[10px] uppercase font-bold tracking-widest">Active Sentinels</p>
-                        <h3 id="kpi-total" class="text-4xl font-bold text-white mt-2 font-mono">--</h3>
-                    </div>
-                    <div class="card p-6 border-t-2 border-emerald-500">
-                        <p class="text-slate-400 text-[10px] uppercase font-bold tracking-widest">Shield Integrity</p>
-                        <h3 id="kpi-score" class="text-4xl font-bold text-emerald-400 mt-2 font-mono">--%</h3>
-                        <p class="text-[10px] text-slate-500 mt-1 uppercase">CIS Level 1</p>
-                    </div>
-                    <div class="card p-6 border-t-2 border-alert">
-                        <p class="text-slate-400 text-[10px] uppercase font-bold tracking-widest">Critical Breaches</p>
-                        <h3 class="text-4xl font-bold text-alert mt-2 font-mono">0</h3>
-                    </div>
-                    <div class="card p-6 border-t-2 border-purple-500">
-                        <p class="text-slate-400 text-[10px] uppercase font-bold tracking-widest">Ops Rate (24h)</p>
-                        <h3 class="text-4xl font-bold text-white mt-2 font-mono">--</h3>
+            <!-- TELA 1: DASHBOARD -->
+            <section id="view-dashboard" class="space-y-6 fade-in">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Security Posture Overview</h2>
+                        <p class="text-slate-400 text-sm mt-1">Monitoramento em tempo real de ativos e ameaças.</p>
                     </div>
                 </div>
 
-                <!-- Charts -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="card p-6">
-                        <h4 class="text-white font-bold text-xs uppercase tracking-widest mb-6 border-b border-slate-700 pb-2">Compliance Vectors</h4>
-                        <div class="h-64"><canvas id="cisChart"></canvas></div>
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Card 1 -->
+                    <div class="glass-panel p-5 rounded-xl border-l-4 border-cyan-500 relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <i data-lucide="monitor-smartphone" class="w-16 h-16 text-cyan-500"></i>
+                        </div>
+                        <p class="text-slate-500 text-xs font-mono uppercase tracking-wider">Ativos Monitorados</p>
+                        <h3 id="kpi-total" class="text-3xl font-bold text-white mt-1">--</h3>
                     </div>
-                    <div class="card p-6">
-                        <h4 class="text-white font-bold text-xs uppercase tracking-widest mb-6 border-b border-slate-700 pb-2">OS Distribution</h4>
-                        <div class="h-64 flex justify-center"><canvas id="osChart"></canvas></div>
+
+                    <!-- Card 2 -->
+                    <div class="glass-panel p-5 rounded-xl border-l-4 border-emerald-500 relative overflow-hidden group">
+                        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <i data-lucide="shield-check" class="w-16 h-16 text-emerald-500"></i>
+                        </div>
+                        <p class="text-slate-500 text-xs font-mono uppercase tracking-wider">Compliance Score</p>
+                        <h3 id="kpi-score" class="text-3xl font-bold text-white mt-1">--%</h3>
+                        <p class="text-xs text-slate-500 mt-1">Média CIS v8</p>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- VIEW: INVENTORY -->
-            <div id="view-inventory" class="hidden space-y-6 fade-in">
-                <div class="card overflow-hidden">
-                    <div class="p-4 border-b border-slate-700/50 flex justify-between items-center bg-black/20">
-                        <h2 class="text-xs font-bold text-nebula uppercase tracking-widest flex items-center gap-2">
-                            <i class="ph-bold ph-list-dashes text-lg"></i> Fleet Manifest
-                        </h2>
-                        <button onclick="fetchAgents()" class="text-slate-400 hover:text-white transition-transform hover:rotate-180"><i class="ph-bold ph-arrows-clockwise text-xl"></i></button>
+             <!-- TELA 2: INVENTORY -->
+            <section id="view-inventory" class="hidden space-y-6 fade-in">
+                <div class="glass-panel rounded-lg border border-slate-700 overflow-hidden">
+                    <div class="px-4 py-3 bg-slate-800/80 border-b border-slate-700 flex justify-between items-center">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i data-lucide="server" class="w-4 h-4 text-cyan-500"></i> Inventário de Máquinas
+                        </h3>
+                        <button onclick="fetchAgents()" class="text-slate-400 hover:text-white transition-transform hover:rotate-180"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button>
                     </div>
-                    <table class="w-full text-left text-xs font-mono">
-                        <thead class="bg-slate-900/80 text-slate-500 font-bold uppercase tracking-wider">
-                            <tr><th class="p-4">Node ID / Host</th><th class="p-4">Status</th><th class="p-4">OS Core</th><th class="p-4 text-center">Shield Score</th><th class="p-4">Last Signal</th><th class="p-4 text-right">Access</th></tr>
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900 text-slate-500 font-mono uppercase">
+                            <tr>
+                                <th class="px-4 py-3">Hostname</th>
+                                <th class="px-4 py-3">Status</th>
+                                <th class="px-4 py-3">OS</th>
+                                <th class="px-4 py-3 text-center">Score CIS</th>
+                                <th class="px-4 py-3">Last Seen</th>
+                                <th class="px-4 py-3 text-right">Action</th>
+                            </tr>
                         </thead>
-                        <tbody id="inventory-body" class="divide-y divide-slate-800 text-slate-300"></tbody>
+                        <tbody id="inventory-body" class="divide-y divide-slate-800 text-slate-300">
+                        </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
-            <!-- VIEW: COMPLIANCE -->
-            <div id="view-compliance" class="hidden space-y-6 fade-in">
+             <!-- TELA 3: COMPLIANCE (CIS v8) -->
+            <section id="view-compliance" class="hidden space-y-6 fade-in">
                 <div class="flex justify-between items-end border-b border-slate-800 pb-6">
                     <div>
                         <h3 class="text-2xl font-bold text-white tracking-tight">SHIELD INTEGRITY PROTOCOLS</h3>
                         <p class="text-slate-500 text-xs mt-1 font-mono uppercase">Standard: CIS Critical Security Controls v8.1</p>
                     </div>
-                    <div class="text-right">
-                        <p class="text-[10px] text-slate-500 uppercase tracking-widest">Global Integrity</p>
-                        <p class="text-5xl font-bold text-nebula font-mono">--%</p>
-                    </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="cis-grid"></div>
-            </div>
-
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="cis-grid">
+                    <!-- Cards de Compliance Mockados -->
+                    <div class="glass-panel p-4 border border-slate-700 bg-slate-800/50 flex justify-between items-center"><div><p class="text-[10px] text-slate-500 uppercase font-bold">Control 01</p><h4 class="text-sm font-bold text-white">Inventory of Assets</h4></div><div class="text-xl font-mono font-bold text-emerald-400">100%</div></div>
+                     <div class="glass-panel p-4 border border-slate-700 bg-slate-800/50 flex justify-between items-center"><div><p class="text-[10px] text-slate-500 uppercase font-bold">Control 02</p><h4 class="text-sm font-bold text-white">Inventory of Software</h4></div><div class="text-xl font-mono font-bold text-emerald-400">100%</div></div>
+                      <div class="glass-panel p-4 border border-slate-700 bg-slate-800/50 flex justify-between items-center"><div><p class="text-[10px] text-slate-500 uppercase font-bold">Control 08</p><h4 class="text-sm font-bold text-white">Audit Log Management</h4></div><div class="text-xl font-mono font-bold text-emerald-400">100%</div></div>
+                </div>
+            </section>
         </div>
     </main>
 
     <!-- MODAL DETALHES -->
     <div id="details-modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
         <div class="modal-overlay absolute w-full h-full bg-black/80 backdrop-blur-sm"></div>
-        <div class="modal-container bg-[#0f172a] w-11/12 md:max-w-5xl mx-auto border border-nebula/30 shadow-[0_0_50px_rgba(59,130,246,0.15)] flex flex-col max-h-[90vh]">
+        <div class="modal-container bg-[#0f172a] w-11/12 md:max-w-5xl mx-auto border border-cyan-500/30 shadow-[0_0_50px_rgba(59,130,246,0.15)] flex flex-col max-h-[90vh]">
             <!-- Modal Header -->
             <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-black/40">
                 <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded border border-slate-700 bg-slate-800 flex items-center justify-center text-nebula"><i class="ph-fill ph-desktop text-2xl"></i></div>
+                    <div class="w-10 h-10 rounded border border-slate-700 bg-slate-800 flex items-center justify-center text-cyan-500"><i data-lucide="monitor" class="w-6 h-6"></i></div>
                     <div>
                         <h3 class="text-xl font-bold text-white tracking-wide" id="modal-hostname">HOST</h3>
                         <p class="text-[10px] text-slate-500 font-mono mt-0.5 uppercase tracking-wider" id="modal-id">UUID</p>
                     </div>
                 </div>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-alert transition-colors"><i class="ph-bold ph-x text-2xl"></i></button>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-red-400 transition-colors"><i data-lucide="x" class="w-6 h-6"></i></button>
             </div>
             
             <div class="flex-1 flex overflow-hidden">
                 <!-- Modal Sidebar -->
                 <div class="w-48 bg-black/20 border-r border-slate-800 p-4 space-y-2">
-                    <button id="tab-hw" onclick="switchTab('hw')" class="tab-btn w-full text-left px-4 py-3 rounded text-xs font-bold uppercase tracking-wider text-slate-400 hover:bg-slate-800 hover:text-white transition-all border-l-2 border-transparent">HARDWARE</button>
-                    <button id="tab-sw" onclick="switchTab('sw')" class="tab-btn w-full text-left px-4 py-3 rounded text-xs font-bold uppercase tracking-wider text-slate-400 hover:bg-slate-800 hover:text-white transition-all border-l-2 border-transparent">SOFTWARE</button>
-                    <button id="tab-cis" onclick="switchTab('cis')" class="tab-btn w-full text-left px-4 py-3 rounded text-xs font-bold uppercase tracking-wider text-slate-400 hover:bg-slate-800 hover:text-white transition-all border-l-2 border-transparent">SECURITY</button>
+                    <button id="tab-hw" onclick="switchTabModal('hw')" class="tab-btn w-full text-left px-4 py-3 rounded text-xs font-bold uppercase tracking-wider text-slate-400 hover:bg-slate-800 hover:text-white transition-all border-l-2 border-transparent active">HARDWARE</button>
+                    <button id="tab-sw" onclick="switchTabModal('sw')" class="tab-btn w-full text-left px-4 py-3 rounded text-xs font-bold uppercase tracking-wider text-slate-400 hover:bg-slate-800 hover:text-white transition-all border-l-2 border-transparent">SOFTWARE</button>
+                    <button id="tab-cis" onclick="switchTabModal('cis')" class="tab-btn w-full text-left px-4 py-3 rounded text-xs font-bold uppercase tracking-wider text-slate-400 hover:bg-slate-800 hover:text-white transition-all border-l-2 border-transparent">SECURITY</button>
                 </div>
 
                 <!-- Modal Content -->
                 <div class="flex-1 p-8 overflow-y-auto bg-slate-900/50">
                     <!-- HW TAB -->
-                    <div id="content-hw" class="space-y-6">
+                    <div id="content-hw" class="space-y-6 block">
                         <div class="grid grid-cols-4 gap-4">
-                            <div class="card p-4 text-center"><p class="text-[10px] text-slate-500 uppercase">CPU Core</p><p class="text-white font-bold font-mono text-sm mt-1" id="modal-cpu">-</p></div>
-                            <div class="card p-4 text-center"><p class="text-[10px] text-slate-500 uppercase">Threads</p><p class="text-white font-bold font-mono text-sm mt-1" id="modal-cores">-</p></div>
-                            <div class="card p-4 text-center"><p class="text-[10px] text-slate-500 uppercase">Memory</p><p class="text-white font-bold font-mono text-sm mt-1" id="modal-ram">-</p></div>
-                            <div class="card p-4 text-center"><p class="text-[10px] text-slate-500 uppercase">Storage</p><p class="text-white font-bold font-mono text-sm mt-1" id="modal-disk">-</p></div>
+                            <div class="glass-panel p-4 text-center"><p class="text-[10px] text-slate-500 uppercase">CPU Core</p><p class="text-white font-bold font-mono text-sm mt-1" id="modal-cpu">-</p></div>
+                            <div class="glass-panel p-4 text-center"><p class="text-[10px] text-slate-500 uppercase">Threads</p><p class="text-white font-bold font-mono text-sm mt-1" id="modal-cores">-</p></div>
+                            <div class="glass-panel p-4 text-center"><p class="text-[10px] text-slate-500 uppercase">Memory</p><p class="text-white font-bold font-mono text-sm mt-1" id="modal-ram">-</p></div>
+                            <div class="glass-panel p-4 text-center"><p class="text-[10px] text-slate-500 uppercase">Storage</p><p class="text-white font-bold font-mono text-sm mt-1" id="modal-disk">-</p></div>
                         </div>
-                        
-                        <!-- Thermal -->
-                        <div class="card p-4 border-l-4 border-l-orange-500 bg-orange-500/5" id="thermal-card">
+                         <!-- Thermal -->
+                        <div class="glass-panel p-4 border-l-4 border-l-orange-500 bg-orange-500/5 mt-4" id="thermal-card">
                              <div class="flex justify-between items-center">
                                 <span class="text-xs font-bold text-orange-400 uppercase tracking-widest">Thermal Sensor</span>
                                 <span class="text-xl font-bold text-white font-mono" id="modal-temp">--</span>
@@ -684,7 +813,7 @@ $htmlContent = @'
 
                     <!-- CIS TAB -->
                     <div id="content-cis" class="hidden">
-                        <div class="mb-6 flex justify-between items-center pb-4 border-b border-slate-800">
+                         <div class="mb-6 flex justify-between items-center pb-4 border-b border-slate-800">
                             <div><span class="text-xs text-slate-500 uppercase">Audit Status</span><div class="text-lg font-bold text-white mt-1" id="modal-score-explain">--</div></div>
                             <div class="px-3 py-1 rounded bg-blue-500/10 text-blue-400 text-xs font-mono border border-blue-500/20" id="modal-policy-name">--</div>
                         </div>
@@ -698,12 +827,13 @@ $htmlContent = @'
         </div>
     </div>
 
-    <!-- JS LOGIC (Mantida e Adaptada) -->
+    <!-- Script de Funcionalidade -->
     <script>
+        // Inicializa Icones Lucide
+        lucide.createIcons();
+
         const API_URL = '/api/agents';
         let uniqueAgents = [];
-        let osChartInstance = null;
-        let cisChartInstance = null;
 
         async function fetchAgents() {
             try {
@@ -718,7 +848,6 @@ $htmlContent = @'
                 uniqueAgents = Array.from(map.values());
                 renderTable();
                 renderKPIs();
-                renderCharts(uniqueAgents);
             } catch(e) { console.error(e); }
         }
 
@@ -734,15 +863,15 @@ $htmlContent = @'
             const tbody = document.getElementById('inventory-body');
             tbody.innerHTML = '';
             uniqueAgents.forEach(a => {
-                const status = a.status === 'ONLINE' 
-                    ? '<span class="text-emerald-400 font-bold drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]">● ON</span>' 
-                    : '<span class="text-slate-600 font-bold">● OFF</span>';
+                 const status = a.status === 'ONLINE' 
+                    ? '<span class="badge-online">● ON</span>' 
+                    : '<span class="badge-offline">● OFF</span>';
                 
                 let score = '<span class="text-slate-700">-</span>';
                 if(a.compliance_score !== null) {
-                    let c = 'text-alert border-alert/30 bg-alert/10';
-                    if(a.compliance_score >= 80) c = 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10';
-                    else if(a.compliance_score >= 50) c = 'text-amber-400 border-amber-500/30 bg-amber-500/10';
+                    let c = 'text-accent-danger border-accent-danger bg-red-500/10';
+                    if(a.compliance_score >= 80) c = 'text-accent-success border-accent-success bg-emerald-500/10';
+                    else if(a.compliance_score >= 50) c = 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10';
                     score = `<span class="px-2 py-0.5 rounded border ${c} font-bold text-[10px]">${a.compliance_score}%</span>`;
                 }
 
@@ -753,84 +882,34 @@ $htmlContent = @'
                         <td class="p-4 text-slate-400">${a.os_name}</td>
                         <td class="p-4 text-center">${score}</td>
                         <td class="p-4 text-slate-500 text-[10px]">${new Date(a.last_seen_at).toLocaleTimeString()}</td>
-                        <td class="p-4 text-right"><button onclick="openDetails('${a.id}')" class="text-nebula hover:text-white text-xs font-bold border border-nebula/30 hover:bg-nebula hover:border-nebula px-3 py-1 rounded transition-all shadow-neon">ACCESS</button></td>
+                        <td class="p-4 text-right"><button onclick="openDetails('${a.id}')" class="text-cyan-400 hover:text-white text-xs font-bold border border-cyan-500/30 hover:bg-cyan-500 hover:border-cyan-500 px-3 py-1 rounded transition-all shadow-[0_0_10px_rgba(6,182,212,0.3)]">ACCESS</button></td>
                     </tr>`;
             });
         }
 
-        // Mock CIS Controls for Chart
-        const cisControls = [
-            { id: 1, name: "Asset Inv", score: 100 }, { id: 2, name: "Soft Inv", score: 100 },
-            { id: 3, name: "Data Prot", score: 33 }, { id: 4, name: "Secure Config", score: 50 },
-            { id: 8, name: "Logs", score: 100 }
-        ];
-
-        function renderCIS() {
-            const grid = document.getElementById('cis-grid');
-            grid.innerHTML = '';
-            cisControls.forEach(c => {
-               let color = c.score == 100 ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-slate-700 bg-slate-800/50';
-               let text = c.score == 100 ? 'text-emerald-400' : 'text-slate-400';
-               grid.innerHTML += `
-                <div class="card p-4 ${color} border flex justify-between items-center">
-                    <div><p class="text-[10px] text-slate-500 uppercase font-bold">Control 0${c.id}</p><h4 class="text-sm font-bold text-white">${c.name}</h4></div>
-                    <div class="text-xl font-mono font-bold ${text}">${c.score}%</div>
-                </div>`; 
-            });
-        }
-        
-        function renderCharts(agents) {
-            const osCounts = {};
-            agents.forEach(a => { osCounts[a.os_name] = (osCounts[a.os_name] || 0) + 1 });
-            const ctxOs = document.getElementById('osChart').getContext('2d');
-            if (osChartInstance) osChartInstance.destroy();
-            osChartInstance = new Chart(ctxOs, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(osCounts),
-                    datasets: [{ data: Object.values(osCounts), backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'], borderColor: '#1e293b', borderWidth: 0 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#94a3b8', font: {family: '"JetBrains Mono"'} } } } }
-            });
-
-            // Mock Chart for CIS Progress
-            const ctxCis = document.getElementById('cisChart').getContext('2d');
-            if(cisChartInstance) cisChartInstance.destroy();
-            cisChartInstance = new Chart(ctxCis, {
-                type: 'radar',
-                data: {
-                    labels: ['IG1', 'IG2', 'IG3', 'Vuln', 'Threats'],
-                    datasets: [{
-                        label: 'Current Posture',
-                        data: [85, 59, 20, 45, 60],
-                        backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                        borderColor: '#3b82f6',
-                        pointBackgroundColor: '#fff'
-                    }]
-                },
-                options: { 
-                    responsive: true, maintainAspectRatio: false,
-                    scales: { r: { grid: { color: '#334155' }, ticks: { display: false, backdropColor: 'transparent' } } },
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
-        // Navigation
-        function navigate(view) {
-            document.querySelectorAll('[id^="view-"]').forEach(e => e.classList.add('hidden'));
+        function navigate(view, element) {
+            document.querySelectorAll('section[id^="view-"]').forEach(e => e.classList.add('hidden'));
             document.getElementById('view-' + view).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active', 'text-nebula'));
-            document.getElementById('nav-' + view).classList.add('active', 'text-nebula');
             
-            const titles = {'dashboard': 'COMMAND BRIDGE', 'inventory': 'SENTINEL NODES', 'compliance': 'SHIELD INTEGRITY'};
-            document.getElementById('page-title').innerText = titles[view];
+            // Remove active de todos
+            document.querySelectorAll('.nav-item').forEach(e => {
+                e.classList.remove('active');
+                e.classList.remove('text-cyan-400');
+                e.classList.add('text-slate-300');
+            });
+
+            // Adiciona active ao atual
+            if(element) {
+                element.classList.add('active');
+                element.classList.remove('text-slate-300');
+            }
         }
 
-        // Modal Logic
+        // --- Modal Logic ---
         async function openDetails(id) {
             document.getElementById('details-modal').classList.remove('opacity-0', 'pointer-events-none');
-            // (Logica de fetch mantida igual, apenas renderizando nos novos IDs)
+            document.body.classList.add('modal-active');
+            
             try {
                 const res = await fetch('/api/agents/' + id + '/details');
                 const data = await res.json();
@@ -843,7 +922,7 @@ $htmlContent = @'
                     document.getElementById('modal-ram').innerText = (hw.ram_total_mb/1024).toFixed(1) + ' GB';
                     document.getElementById('modal-disk').innerText = hw.disk_total_gb + ' GB';
                     
-                    // Temp
+                     // Temp
                     if(hw.cpu_temp_c) {
                         document.getElementById('modal-temp').innerHTML = `${Math.round(hw.cpu_temp_c)}&deg;C`;
                         if(hw.cpu_temp_c > 75) document.getElementById('thermal-card').classList.add('animate-pulse');
@@ -853,11 +932,11 @@ $htmlContent = @'
                     const swBody = document.getElementById('modal-sw-body'); swBody.innerHTML = '';
                     data.software.forEach(s => swBody.innerHTML += `<tr class="border-b border-slate-800/50"><td class="py-2 text-white">${s.name}</td><td class="py-2 text-slate-500">${s.version||'-'}</td><td class="py-2 text-slate-600">${s.vendor||'-'}</td></tr>`);
 
-                    // CIS
+                     // CIS
                     const cisBody = document.getElementById('modal-cis-body'); cisBody.innerHTML = '';
                     if(data.compliance && data.compliance.details) {
                         data.compliance.details.forEach(r => {
-                            const badge = r.status === 'PASS' ? '<span class="text-emerald-400 font-bold">PASS</span>' : '<span class="text-alert font-bold">FAIL</span>';
+                            const badge = r.status === 'PASS' ? '<span class="badge-success px-2 py-0.5 rounded text-[10px] font-bold">PASS</span>' : '<span class="badge-fail px-2 py-0.5 rounded text-[10px] font-bold">FAIL</span>';
                             cisBody.innerHTML += `<tr class="border-b border-slate-800/50"><td class="py-2 text-xs">${badge}</td><td class="py-2 text-white">${r.title}</td><td class="py-2 text-slate-500 font-mono text-[10px]">${r.output}</td></tr>`;
                         });
                         document.getElementById('modal-score-explain').innerText = data.compliance.score + '% Secure';
@@ -866,16 +945,18 @@ $htmlContent = @'
             } catch(e){}
         }
 
-        function switchTab(t) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('text-nebula', 'border-nebula'));
-            document.getElementById('tab-'+t).classList.add('text-nebula', 'border-nebula');
+        function switchTabModal(t) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-'+t).classList.add('active');
             document.querySelectorAll('[id^="content-"]').forEach(c => c.classList.add('hidden'));
             document.getElementById('content-'+t).classList.remove('hidden');
         }
 
-        function closeModal() { document.getElementById('details-modal').classList.add('opacity-0', 'pointer-events-none'); }
+        function closeModal() { 
+            document.getElementById('details-modal').classList.add('opacity-0', 'pointer-events-none'); 
+            document.body.classList.remove('modal-active');
+        }
         
-        renderCIS();
         fetchAgents();
         setInterval(fetchAgents, 5000);
     </script>
@@ -885,6 +966,6 @@ $htmlContent = @'
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $False
 [System.IO.File]::WriteAllText("$PWD/assets/index.html", $htmlContent, $Utf8NoBom)
 
-Write-Host "[SUCCESS] Codigo atualizado para Docker (Runtime Queries)!" -ForegroundColor Cyan
+Write-Host "[SUCCESS] Codigo atualizado para Docker (Runtime Queries) e UI v2.0 aplicada!" -ForegroundColor Cyan
 Write-Host "1. Commit e Push."
 Write-Host "2. Redeploy no Coolify."
