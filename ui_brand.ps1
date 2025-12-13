@@ -1,3 +1,17 @@
+# ==============================================================================
+# BLUE-TAURUS: UI BRANDING UPDATE (SCI-FI THEME)
+# Descrição: Aplica a nova identidade visual (Cores, Fontes, Nomes) ao index.html.
+# ==============================================================================
+
+$ProjectName = "blue-taurus"
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
+Write-Host "[UI] Aplicando identidade visual Cyber-Space..." -ForegroundColor Cyan
+
+if (Test-Path "$ProjectName/assets") { Set-Location $ProjectName }
+
+# Conteúdo HTML com o novo Branding
+$htmlContent = @'
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
 <head>
@@ -9,7 +23,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
-    <!-- Fonte TÃ¡tica: JetBrains Mono -->
+    <!-- Fonte Tática: JetBrains Mono -->
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
@@ -60,7 +74,7 @@
             border-left: 2px solid #60a5fa; 
         }
         
-        /* AnimaÃ§Ãµes */
+        /* Animações */
         @keyframes scanline {
             0% { transform: translateY(-100%); }
             100% { transform: translateY(100%); }
@@ -75,7 +89,7 @@
 </head>
 <body class="flex h-screen overflow-hidden selection:bg-nebula selection:text-white">
 
-    <!-- Scanline Effect (Opcional - EstÃ©tica Sci-Fi) -->
+    <!-- Scanline Effect (Opcional - Estética Sci-Fi) -->
     <div class="scan-overlay"></div>
 
     <!-- SIDEBAR -->
@@ -315,8 +329,8 @@
             tbody.innerHTML = '';
             uniqueAgents.forEach(a => {
                 const status = a.status === 'ONLINE' 
-                    ? '<span class="text-emerald-400 font-bold drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]">â— ON</span>' 
-                    : '<span class="text-slate-600 font-bold">â— OFF</span>';
+                    ? '<span class="text-emerald-400 font-bold drop-shadow-[0_0_5px_rgba(16,185,129,0.5)]">● ON</span>' 
+                    : '<span class="text-slate-600 font-bold">● OFF</span>';
                 
                 let score = '<span class="text-slate-700">-</span>';
                 if(a.compliance_score !== null) {
@@ -424,3 +438,8 @@
     </script>
 </body>
 </html>
+'@
+$Utf8NoBom = New-Object System.Text.UTF8Encoding $False
+[System.IO.File]::WriteAllText("$PWD/assets/index.html", $htmlContent, $Utf8NoBom)
+
+Write-Host "[SUCCESS] Identidade Visual Aplicada! (Reinicie o servidor se necessario)" -ForegroundColor Cyan

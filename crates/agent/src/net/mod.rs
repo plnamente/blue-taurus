@@ -13,10 +13,12 @@ use std::process::Command;
 const ADMIN_PUBLIC_KEY: &str = "4d6e4d06c24a64de1044ff65403bdbe4ff5cf70bc48c062117a90e47b9f03c7b"; 
 
 pub async fn start_agent_loop(agent_id: Uuid, host_info: HostInfo, sca_report: Option<ComplianceReport>) {
-    let url = Url::parse("ws://127.0.0.1:3000/ws").unwrap();
+    // URL DE PRODUCAO (Coolify)
+    // Nota: Se configurar SSL no Coolify depois, mude para wss://
+    let url = Url::parse("ws://uk4gco4wgco84s0gco0w4co8.72.60.141.205.sslip.io/ws").unwrap();
 
     loop {
-        tracing::info!("Tentando conectar ao servidor...");
+        tracing::info!("Tentando conectar ao servidor em {}...", url);
         
         match connect_async(url.clone()).await {
             Ok((ws_stream, _)) => {
